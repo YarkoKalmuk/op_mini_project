@@ -1,0 +1,47 @@
+/* styles.css */
+.button-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;  /* Щоб кнопки були поверх карти */
+}
+
+.button-link {
+    display: block;
+    padding: 10px;
+    margin: 5px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.button-link:hover {
+    background-color: #0056b3;
+}
+
+html, body {
+    height: 100%; /* Задаємо 100% висоти для документа */
+    margin: 0; /* Відключаємо стандартні відступи */
+}
+
+.map-container {
+    position: "absolute";
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100%;
+}
+
+.page-title {
+    position: absolute;
+    top: 0px;
+    left: 60px;
+    z-index: 1000; /* Щоб заголовок був поверх карти */
+    color: rgb(255, 255, 255);
+    font-size: 24px;
+    background-color: rgba(0, 0, 0, 0.5); /* Напівпрозорий фон */
+    padding: 10px;
+    border-radius: 5px;
+}
