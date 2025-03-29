@@ -1,0 +1,19 @@
+.circle-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 45%;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: none;
+    transition: background 0.3s;
+}
+
+.circle-btn:hover {
+    background-color: #c0392b;
+}
