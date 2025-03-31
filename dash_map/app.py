@@ -2,7 +2,7 @@
 It initializes the Dash app, sets up the layout, and defines the callback for page navigation.
 It imports the necessary components from Dash and the layout module.
 The application consists of a main index page with navigation links and an interactive map,
-and two additional pages (Page 1 and Page 2) with simple content and navigation back to the main page.
+and two additional pages (Page 1 and Page 2) with content and navigation back to the main page.
 The app is run in debug mode for development purposes.
 """
 
