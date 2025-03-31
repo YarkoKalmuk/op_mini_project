@@ -8,10 +8,10 @@ It includes:
 The module uses Dash components (`html`, `dcc`) and Dash Leaflet (`dl`) for building the UI.
 """
 
+import math
 from dash import dcc, html
 import dash_leaflet as dl
 import pandas as pd
-import math
 
 def select_top_200(shelters_df: pd.DataFrame, bounds: dict[str, float]) -> pd.DataFrame:
     """
@@ -27,7 +27,6 @@ def select_top_200(shelters_df: pd.DataFrame, bounds: dict[str, float]) -> pd.Da
     # bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1]
     if bounds is None:
         bounds = {'south': 49.8, 'west': 23.9, 'north': 49.9, 'east': 24.1}
-        south, west, north, east = bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1]
         bounds = [[49.8, 23.9], [49.9, 24.1]]
     shelters_df = shelters_df[
         (shelters_df['latitude'] <= bounds['north']) &
@@ -37,7 +36,8 @@ def select_top_200(shelters_df: pd.DataFrame, bounds: dict[str, float]) -> pd.Da
     ]
     # Сортуємо за місткістю та вибираємо топ-200
     sorted_shelters = shelters_df.sort_values(by='capacity_of_persons', ascending=False)
-    return sorted_shelters.head(200)
+    return sorted_shelters.head(800)
+
 
 def index_page(shelters_df: pd.DataFrame, display_bounds: dict[str, float]) -> html.Div:
     # Створюємо маркери для укриттів
@@ -51,7 +51,7 @@ def index_page(shelters_df: pd.DataFrame, display_bounds: dict[str, float]) -> h
     ]
 
     return html.Div([
-        html.H1("Мапа укриттів", className='page-title'),
+        html.H1("Мапа укриттів", className='page-title', id='debug-output'),
         html.Div([
             dcc.Link('Перейти на сторінку 1', href='/page-1', className='button-link'),
             html.Br(),
@@ -64,13 +64,12 @@ def index_page(shelters_df: pd.DataFrame, display_bounds: dict[str, float]) -> h
             zoom=12,
             children=[
                 dl.TileLayer(),
-                *shelter_markers  # Додаємо маркери укриттів на карту
+                dl.LayerGroup(id="shelter-layer")  # Додаємо маркери укриттів на карту
             ],
             bounds=[[49.8, 23.9], [49.9, 24.1]],
             className='map-container'
         ),
         dcc.Store(id='bounds-store'),  # Added dcc.Store for storing bounds
-        html.Div(id='bounds-display', style={'marginTop': '20px'})  # Added div to display bounds
     ])
 
 page_1_layout = html.Div([

@@ -17,11 +17,12 @@ Windows:
 python app.py
 """
 
+import math
 import dash
-from dash import html
-from dash import dcc  # Додайте імпорт dcc, якщо його ще немає
+from dash import html, dcc  # Додайте імпорт dcc, якщо його ще немає
 from dash.dependencies import Input, Output
-from assets.layout import index_page, page_1_layout, page_2_layout  # Імпортуємо макети
+import dash_leaflet as dl
+from assets.layout import index_page, page_1_layout, page_2_layout, select_top_200  # Імпортуємо макети
 import pandas as pd
 
 # Завантаження даних з CSV-файлу
@@ -32,16 +33,14 @@ shelters_df = pd.read_csv(filepath)
 shelters_df = shelters_df.dropna(subset=['latitude', 'longitude'])
 shelters_df = shelters_df.drop(columns=['account_number',
                 'ability_to_publish_information', 'district', 'community'])
-# print(shelters_df.columns)
-# Отримуємо координати укриттів
-# shelters_coords = shelters_df[['type_of_room', 'capacity_of_persons', 'latitude', 'longitude', 'street', 'building_number']].values.tolist()
+
 
 # Передаємо координати в макет
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),  # Відстеження змін URL
     dcc.Store(id='bounds-store'),  # Сховище для меж карти
-    html.Div(id='bounds-display', style={'marginTop': '20px'}),  # Відображення меж карти
+    html.Div(id='bounds-display'),  # Відображення меж карти
     html.Div(id='page-content')  # Контейнер для сторінок
 ])
 
@@ -60,30 +59,55 @@ def display_page(pathname) -> html.Div:
         return page_1_layout  # Повертаємо статичний макет
     if pathname == '/page-2':
         return page_2_layout  # Повертаємо статичний макет
-    # if bounds:
-    #     south, west, north, east = bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1]
-    #     print(f"Bounds updated: South={south}, West={west}, North={north}, East={east}")
-    return index_page(shelters_df, {'south': 49.8, 'west': 23.9, 'north': 49.9, 'east': 24.1})  # Передаємо shelters_df тільки для index_page
+    return index_page(shelters_df, {'south': 49.8, 'west': 23.9, 'north': 49.9, 'east': 24.1})
+
 
 @app.callback(
     Output('bounds-store', 'data'),  # Update dcc.Store's data property
     Input('map', 'bounds')  # Listen for map bounds changes
 )
 def update_bounds(bounds):
+    """
+    Update the bounds in dcc.Store when the map bounds change.
+    :param bounds: The current bounds of the map.
+    :return: A dictionary with the bounds data.
+    """
     if bounds:
-        south, west, north, east = bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1]
-        print(f"Bounds updated: South={south}, West={west}, North={north}, East={east}")
-        return {'south': south, 'west': west, 'north': north, 'east': east}
+        return {
+            'south': bounds[0][0], 'west': bounds[0][1],
+            'north': bounds[1][0], 'east': bounds[1][1]
+            }
     return {}
 
-# @app.callback(
-#     Output('bounds-display', 'children'),  # Update display with bounds data
-#     Input('bounds-store', 'data')  # Use data from dcc.Store
-# )
-# def display_bounds(bounds_data):
-#     if bounds_data:
-#         return f"Bounds: South={bounds_data['south']}, West={bounds_data['west']}, North={bounds_data['north']}, East={bounds_data['east']}"
-#     return "No bounds available"
+
+
+@app.callback(
+    Output("shelter-layer", "children"),  # Update the shelter layer on the map
+    Input("bounds-store", "data")
+)
+def update_shelter_markers(bounds):
+    """
+    Update the shelter markers on the map based on the current bounds.
+    :param bounds: The current bounds of the map.
+    :return: A list of CircleMarker components for the shelters within the bounds.
+    """
+    global shelters_df
+    shelter_markers = select_top_200(shelters_df, bounds)
+    return [
+        dl.CircleMarker(center=[row['latitude'], row['longitude']],
+                        radius=math.log(row['capacity_of_persons']),
+                        color='blue' if row['type_of_room'] == 'Найпростіше укриття' else 'red',
+                        fillOpacity=0.6)
+        for _, row in shelter_markers.iterrows()
+    ]
+
+@app.callback(
+    Output("debug-output", "children"),
+    Input("bounds-store", "data")
+)
+def show_bounds(bounds):
+    return f"Bounds: {bounds}" if bounds else "Немає даних"
+
 
 if __name__ == "__main__":
     app.run(debug=True)
