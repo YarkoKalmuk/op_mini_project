@@ -3,12 +3,12 @@ This module defines the layout for a Dash web application.
 
 It includes:
 - The main index page with navigation links and an interactive map.
-- Layouts for additional pages (Page 1 and Page 2) with simple content and navigation back to the main page.
+- Layouts for additional pages (Page 1 and Page 2) with simple content
+and navigation back to the main page.
 
 The module uses Dash components (`html`, `dcc`) and Dash Leaflet (`dl`) for building the UI.
 """
 
-import math
 from dash import dcc, html
 import dash_leaflet as dl
 import pandas as pd
@@ -34,24 +34,14 @@ def select_top_200(shelters_df: pd.DataFrame, bounds: dict[str, float]) -> pd.Da
         (shelters_df['longitude'] <= bounds['east']) &
         (shelters_df['longitude'] >= bounds['west'])
     ]
-    # Сортуємо за місткістю та вибираємо топ-200
-    sorted_shelters = shelters_df.sort_values(by='capacity_of_persons', ascending=False)
-    return sorted_shelters.head(800)
+    # Сортуємо за місткістю та вибираємо топ-500
+    return shelters_df.nlargest(500, 'capacity_of_persons')
+    # sorted_shelters = shelters_df.sort_values(by='capacity_of_persons', ascending=False)
+    # return sorted_shelters.head(800)
 
 
-def index_page(shelters_df: pd.DataFrame, display_bounds: dict[str, float]) -> html.Div:
-    # Створюємо маркери для укриттів
-    shelters_to_show = select_top_200(shelters_df, display_bounds)
-    shelter_markers = [
-        dl.CircleMarker(center=[row['latitude'], row['longitude']],
-                        radius=math.log(row['capacity_of_persons']),
-                        color='blue' if row['type_of_room'] == 'Найпростіше укриття' else 'red',
-                        fillOpacity=0.6)
-        for _, row in shelters_to_show.iterrows()
-    ]
-
-    return html.Div([
-        html.H1("Мапа укриттів", className='page-title', id='debug-output'),
+index_page = html.Div([
+        html.H1("Мапа укриттів", className='page-title'),
         html.Div([
             dcc.Link('Перейти на сторінку 1', href='/page-1', className='button-link'),
             html.Br(),
@@ -72,11 +62,24 @@ def index_page(shelters_df: pd.DataFrame, display_bounds: dict[str, float]) -> h
         dcc.Store(id='bounds-store'),  # Added dcc.Store for storing bounds
     ])
 
-page_1_layout = html.Div([
-    html.H1("Сторінка 1"),
-    html.P("Це сторінка номер 1."),
-    dcc.Link('Назад на головну', href='/')
-])
+
+# page_1_layout = html.Div([
+#     html.H1("Сторінка 1"),
+#     html.P("Це сторінка номер 1."),
+#     dcc.Link('Назад на головну', href='/')
+# ])
+
+page_1_layout =  html.Div([
+    html.Div(className="login-container", children=[
+        html.H2("Login", className="login-title"),
+        dcc.Input(id="username", type="text", placeholder="Username", className="input-box"),
+        dcc.Input(id="password", type="password", placeholder="Password", className="input-box"),
+        html.Button("Login", id="login-button", n_clicks=0, className="login-button"),
+        html.Div(id="login-output", className="error-message"),
+        html.A("Back to Map", href="/map", className="back-link")
+    ])
+], className="main-container")
+
 
 page_2_layout = html.Div([
     html.H1("Сторінка 2"),

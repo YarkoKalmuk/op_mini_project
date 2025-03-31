@@ -1,4 +1,5 @@
-"""This is the main file for the Dash application.
+"""
+This is the main file for the Dash application.
 It initializes the Dash app, sets up the layout, and defines the callback for page navigation.
 It imports the necessary components from Dash and the layout module.
 The application consists of a main index page with navigation links and an interactive map,
@@ -20,10 +21,11 @@ python app.py
 import math
 import dash
 from dash import html, dcc  # Додайте імпорт dcc, якщо його ще немає
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import dash_leaflet as dl
 from assets.layout import index_page, page_1_layout, page_2_layout, select_top_200  # Імпортуємо макети
 import pandas as pd
+import dash_bootstrap_components as dbc
 
 # Завантаження даних з CSV-файлу
 filepath = './shelters_coords.csv'
@@ -33,7 +35,8 @@ shelters_df = pd.read_csv(filepath)
 shelters_df = shelters_df.dropna(subset=['latitude', 'longitude'])
 shelters_df = shelters_df.drop(columns=['account_number',
                 'ability_to_publish_information', 'district', 'community'])
-
+shelters_df.loc[shelters_df['type_of_room'] =='Сховище', 'colour'] = 'red'
+shelters_df.loc[shelters_df['type_of_room'] !='Сховище', 'colour'] = 'blue'
 
 # Передаємо координати в макет
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
@@ -59,7 +62,7 @@ def display_page(pathname) -> html.Div:
         return page_1_layout  # Повертаємо статичний макет
     if pathname == '/page-2':
         return page_2_layout  # Повертаємо статичний макет
-    return index_page(shelters_df, {'south': 49.8, 'west': 23.9, 'north': 49.9, 'east': 24.1})
+    return index_page
 
 
 @app.callback(
@@ -95,18 +98,38 @@ def update_shelter_markers(bounds):
     shelter_markers = select_top_200(shelters_df, bounds)
     return [
         dl.CircleMarker(center=[row['latitude'], row['longitude']],
-                        radius=math.log(row['capacity_of_persons']),
-                        color='blue' if row['type_of_room'] == 'Найпростіше укриття' else 'red',
-                        fillOpacity=0.6)
+                        radius=3*math.log(row['capacity_of_persons']/20),
+                        color=row['colour'],
+                        fillOpacity=0.6,
+                        children=[
+                            dl.Tooltip(f"{row['type_of_room']}, "
+                                       f"{row['street']} {row['building_number']}, "
+                                       f"місткість: {row['capacity_of_persons']}, ")
+                        ])
         for _, row in shelter_markers.iterrows()
     ]
 
+# @app.callback(
+#     Output("debug-output", "children"),
+#     Input("bounds-store", "data")
+# )
+# def show_bounds(bounds):
+#     return f"Bounds: {bounds}" if bounds else "Немає даних"
+
+
+# Callback to handle login
 @app.callback(
-    Output("debug-output", "children"),
-    Input("bounds-store", "data")
+    Output("login-output", "children"),
+    Input("login-button", "n_clicks"),
+    State("username", "value"),
+    State("password", "value"),
+    prevent_initial_call=True
 )
-def show_bounds(bounds):
-    return f"Bounds: {bounds}" if bounds else "Немає даних"
+def validate_login(n_clicks, username, password):
+    if username == "admin" and password == "password":
+        return "Login successful! Redirecting..."
+    return "Invalid credentials. Try again."
+
 
 
 if __name__ == "__main__":
