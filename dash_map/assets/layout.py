@@ -11,22 +11,26 @@ The module uses Dash components (`html`, `dcc`) and Dash Leaflet (`dl`) for buil
 from dash import dcc, html
 import dash_leaflet as dl
 
-index_page = html.Div([
-    html.H1("Головна сторінка", className='page-title'),
-    html.Div([
-        dcc.Link('Перейти на сторінку 1', href='/page-1', className='button-link'),
-        html.Br(),
-        dcc.Link('Перейти на сторінку 2', href='/page-2', className='button-link')
-    ], className='button-container'),
+def index_page(shelters_coords):
+    # Створюємо маркери для укриттів
+    shelter_markers = [
+        dl.CircleMarker(center=[lat, lon], radius=5, color='blue', fillColor='blue', fillOpacity=0.6)
+        for lat, lon in shelters_coords
+    ]
 
-    dl.Map(center=[50.45, 30.52], zoom=6, children=[
-        dl.TileLayer(),
-        dl.Marker(position=[50.45, 30.52], children=[
-            dl.Tooltip("Київ, Україна"),
-            dl.Popup("Це столиця України!")
-        ]),
-    ], className='map-container')
-])
+    return html.Div([
+        html.H1("Мапа укриттів", className='page-title'),
+        html.Div([
+            dcc.Link('Перейти на сторінку 1', href='/page-1', className='button-link'),
+            html.Br(),
+            dcc.Link('Перейти на сторінку 2', href='/page-2', className='button-link')
+        ], className='button-container'),
+
+        dl.Map(center=[49.841427, 24.020676], zoom=12, children=[
+            dl.TileLayer(),
+            *shelter_markers  # Додаємо маркери укриттів на карту
+        ], className='map-container')
+    ])
 
 page_1_layout = html.Div([
     html.H1("Сторінка 1"),
