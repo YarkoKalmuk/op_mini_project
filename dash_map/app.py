@@ -25,7 +25,7 @@ from dash.dependencies import Input, Output, State
 import dash_leaflet as dl
 from assets.layout import index_page, page_1_layout, page_2_layout, select_top_200  # Імпортуємо макети
 import pandas as pd
-import dash_bootstrap_components as dbc
+# import dash_bootstrap_components as dbc
 
 # Завантаження даних з CSV-файлу
 filepath = './shelters_coords.csv'
