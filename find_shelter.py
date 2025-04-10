@@ -22,7 +22,8 @@ user_point = (location.latitude, location.longitude)
 
 user_node = ox.distance.nearest_nodes(G, user_point[1], user_point[0])
 shelters = {}
-with open('shelters_coords.csv', 'r', encoding='utf-8') as file:
+file_path = os.path.join(os.path.dirname(__file__), "shelters_coords.csv")
+with open(file_path, 'r', encoding='utf-8') as file:
     next(file) 
     for line in file:
         data = line.strip().split(',')

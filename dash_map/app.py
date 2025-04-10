@@ -131,6 +131,78 @@ def validate_login(n_clicks, username, password):
         return "Login successful! Redirecting..."
     return "Invalid credentials. Try again."
 
+import sys
+import os
+from geopy.geocoders import Nominatim
+import osmnx as ox
+import networkx as nx
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from find_shelter import dj  # функція Дейкстри
+
+# Підготовка графа
+GRAPH_FILE = "./../lviv_graph.graphml"
+if os.path.exists(GRAPH_FILE):
+    G = ox.load_graphml(GRAPH_FILE)
+else:
+    G = ox.graph_from_place("Lviv, Ukraine", network_type="walk", simplify=True)
+    ox.save_graphml(G, GRAPH_FILE)
+
+graph_dict = {node: {} for node in G.nodes()}
+for u, v, data in G.edges(data=True):
+    length = data.get("length", 1)
+    graph_dict[u][v] = length
+
+@app.callback(
+    Output("route-layer", "children"),
+    Input("submit-address", "n_clicks"),
+    State("address-input", "value"),
+    prevent_initial_call=True
+)
+def find_and_draw_route(n_clicks, address):
+    if not address:
+        return []
+
+    # Геокодування адреси
+    geolocator = Nominatim(user_agent="shelter_finder")
+    location = geolocator.geocode(address + ", Львів, Україна")
+    if not location:
+        return []
+
+    user_point = (location.latitude, location.longitude)
+    user_node = ox.distance.nearest_nodes(G, user_point[1], user_point[0])
+
+    # Збір укриттів
+    shelter_nodes = {}
+    for _, row in shelters_df.iterrows():
+        try:
+            lat, lon = row["latitude"], row["longitude"]
+            shelter_node = ox.distance.nearest_nodes(G, lon, lat)
+            shelter_nodes[f"{row['street']} {row['building_number']}"] = shelter_node
+        except:
+            continue
+
+    # Знаходимо найкоротший шлях
+    distances, previous_nodes = dj(graph_dict, user_node)
+    closest_shelter_name, shelter_node = min(
+        shelter_nodes.items(),
+        key=lambda item: distances.get(item[1], float('inf'))
+    )
+
+    # Відновлюємо маршрут
+    path = []
+    node = shelter_node
+    while node is not None:
+        path.append(node)
+        node = previous_nodes.get(node)
+    path = path[::-1]
+
+    route_coords = [(G.nodes[n]["y"], G.nodes[n]["x"]) for n in path]
+
+    return [
+        dl.Polyline(positions=route_coords, color="red", weight=5),
+        dl.Marker(position=route_coords[0], children=dl.Tooltip("Ви")),
+        dl.Marker(position=route_coords[-1], children=dl.Tooltip("Укриття")),
+    ]
 
 
 if __name__ == "__main__":
