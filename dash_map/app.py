@@ -29,7 +29,7 @@ import pandas as pd
 import dash_bootstrap_components as dbc
 
 # Завантаження даних з CSV-файлу
-filepath = './../shelters_coords.csv'
+filepath = './shelters_coords.csv'
 shelters_df = pd.read_csv(filepath)
 
 # Фільтруємо лише ті записи, які мають координати
