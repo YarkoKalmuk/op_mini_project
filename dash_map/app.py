@@ -10,6 +10,7 @@ Needed libraries:
 - dash
 - dash_leaflet
 - pandas
+- dash_bootstrap_components
 
 To launch the app be at OP_MINI_PROJECT directory and use the command:
 Linux/macOS:
@@ -28,7 +29,7 @@ import pandas as pd
 import dash_bootstrap_components as dbc
 
 # Завантаження даних з CSV-файлу
-filepath = './shelters_coords.csv'
+filepath = './../shelters_coords.csv'
 shelters_df = pd.read_csv(filepath)
 
 # Фільтруємо лише ті записи, які мають координати
