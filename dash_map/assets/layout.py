@@ -43,11 +43,6 @@ def select_top_200(shelters_df: pd.DataFrame, bounds: dict[str, float]) -> pd.Da
 index_page = html.Div([
         html.H1("Мапа укриттів", className='page-title'),
         html.Div([
-            dcc.Input(id='address-input', type='text', placeholder='Введіть вашу адресу', style={'width': '300px'}),
-            html.Button('Знайти укриття', id='submit-address', n_clicks=0)
-        ], style={'margin': '10px'}),
-
-        html.Div([
             dcc.Link('Перейти на сторінку 1', href='/page-1', className='button-link'),
             html.Br(),
             dcc.Link('Перейти на сторінку 2', href='/page-2', className='button-link')
@@ -60,7 +55,6 @@ index_page = html.Div([
             children=[
                 dl.TileLayer(),
                 dl.LayerGroup(id="shelter-layer"),  # Додаємо маркери укриттів на карту
-                dl.LayerGroup(id="route-layer")
             ],
             bounds=[[49.8, 23.9], [49.9, 24.1]],
             className='map-container'
