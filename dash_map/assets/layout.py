@@ -67,4 +67,15 @@ page_2_layout = html.Div([
     html.P("Тут буде дублювання функціоналу, якщо потрібно."),
     dcc.Link('Назад на головну', href='/')
 ])
- 
+
+# Додамо нову сторінку для відгуків
+page_3_layout = html.Div([
+    html.H1("Відгуки про укриття"),
+    html.Div(id='reviews-container'),  # Тут будуть відображатись відгуки
+
+    # Форма для додавання відгуку
+    dcc.Input(id='new-review', type='text', placeholder='Ваш відгук...', className='input-box'),
+    html.Button('Лишити відгук', id='submit-review', n_clicks=0, className='submit-button'),
+
+    html.A('Назад до карти', href='/', className='back-link')
+])

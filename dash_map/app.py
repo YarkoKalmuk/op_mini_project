@@ -6,8 +6,10 @@ import dash_leaflet as dl
 import pandas as pd
 import dash_bootstrap_components as dbc
 
-from assets.layout import index_page, page_1_layout, page_2_layout, select_top_200
+from assets.layout import index_page, page_1_layout, page_2_layout, page_3_layout, select_top_200
 from find_shelter_algo import compute_route  # Імпортуємо функцію для маршруту
+
+import sqlite3
 
 # Завантаження укриттів
 filepath = './shelters_coords.csv'
@@ -27,6 +29,17 @@ app.layout = html.Div([
     html.Div(id='page-content')
 ])
 
+
+conn = sqlite3.connect('./instance/shelters.sqlite')
+cursor = conn.cursor()
+cursor.execute('''CREATE TABLE IF NOT EXISTS reviews (
+    shelter_id VARCHAR(128) NOT NULL,
+    review_text VARCHAR(256) NOT NULL
+)
+''')
+conn.close()
+
+
 # 📄 Роутинг між сторінками
 @app.callback(
     Output('page-content', 'children'),
@@ -37,6 +50,8 @@ def display_page(pathname):
         return page_1_layout
     if pathname == '/page-2':
         return page_2_layout
+    if pathname == '/review':
+        return page_3_layout  # Сторінка з відгуками
     return index_page
 
 # 🗺️ Оновлення меж карти
@@ -68,7 +83,11 @@ def update_shelter_markers(bounds):
                         children=[
                             dl.Tooltip(f"{row['type_of_room']}, "
                                        f"{row['street']} {row['building_number']}, "
-                                       f"місткість: {row['capacity_of_persons']}")
+                                       f"місткість: {row['capacity_of_persons']}"),
+                            # Додаємо лінк для переходу на сторінку відгуків
+                            dl.Popup([
+                                html.A(f"Перейти до відгуків", href=f"/review?shelter_id={row['street']}_{row['building_number']}")
+                            ])
                         ])
         for _, row in shelter_markers.iterrows()
     ]
@@ -113,6 +132,54 @@ def handle_route_on_main(n_clicks, address):
         print(f"Помилка: {e}")
         return []
 
+
+@app.callback(
+    Output('reviews-container', 'children'),
+    Input('url', 'pathname'),
+    State('url', 'search')
+)
+def display_reviews(pathname, search):
+    if pathname == '/review':
+        # Тут можна отримати id укриття з query параметра
+        shelter_id = search.split('=')[1] if search else ''
+        # Завантажити відгуки з бази даних або з іншого джерела
+        reviews = get_reviews(shelter_id)
+        return html.Div([html.P(review) for review in reviews])
+    return []
+
+def get_reviews(shelter_id):
+    conn = sqlite3.connect('./instance/shelters.sqlite')
+    cursor = conn.cursor()
+    all_reviews = cursor.execute('SELECT * FROM reviews WHERE shelter_id = ?', (shelter_id,)).fetchall()
+    reviews = []
+    for review in all_reviews:
+        reviews.append(review[1])
+    conn.close()
+    return reviews
+
+@app.callback(
+    Output('new-review', 'value'),
+    Input('submit-review', 'n_clicks'),
+    State('new-review', 'value'),
+    State('url', 'search'),
+    prevent_initial_call=True
+)
+def submit_review(n_clicks, review_text, search):
+    if n_clicks > 0 and review_text:
+        shelter_id = search.split('=')[1] if search else ''
+        # Тут додати відгук в базу даних
+        save_review(review_text, shelter_id)
+        return ''  # Очищаємо поле вводу після додавання відгуку
+    return review_text
+
+def save_review(review_text, shelter_id):
+    conn = sqlite3.connect('./instance/shelters.sqlite')
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO reviews VALUES (?, ?)', (shelter_id, review_text,))
+    conn.commit()
+    print(f"Saving review: {review_text}")
+    # Ти можеш зберігати відгуки в базі даних, тут приклад з виведенням в консоль.
+    conn.close()
 
 
 
