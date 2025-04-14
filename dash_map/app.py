@@ -6,9 +6,9 @@ import dash_leaflet as dl
 import pandas as pd
 import dash_bootstrap_components as dbc
 
-from assets.layout import index_page, page_1_layout, page_2_layout, page_3_layout, select_top_200
+from assets.layout import index_page, page_3_layout, select_top_200
 from find_shelter_algo import compute_route  # Імпортуємо функцію для маршруту
-
+from assets.layout import register_layout, login_layout
 import sqlite3
 
 # Завантаження укриттів
@@ -46,10 +46,10 @@ conn.close()
     Input('url', 'pathname')
 )
 def display_page(pathname):
-    if pathname == '/page-1':
-        return page_1_layout
-    if pathname == '/page-2':
-        return page_2_layout
+    if pathname == '/login':
+        return login_layout
+    if pathname == '/register':
+        return register_layout
     if pathname == '/review':
         return page_3_layout  # Сторінка з відгуками
     return index_page

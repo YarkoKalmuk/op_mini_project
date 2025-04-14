@@ -21,7 +21,7 @@ index_page = html.Div([
         dcc.Input(
             id='address-input',
             type='text',
-            placeholder='Введіть адресу (наприклад: Вулиця Зеленая 20А)',
+            placeholder='Введіть адресу (наприклад: Вулиця Зелена 20А)',
             className='input-box',
             debounce=True
         ),
@@ -32,9 +32,9 @@ index_page = html.Div([
     html.Div(id='route-message', className='status-message'),  # ✅ Додано контейнер для повідомлень
 
     html.Div([
-        dcc.Link('Перейти на сторінку 1', href='/page-1', className='button-link'),
+        dcc.Link('Логін', href='/login', className='button-link'),
         html.Br(),
-        dcc.Link('Перейти на сторінку 2', href='/page-2', className='button-link')
+        dcc.Link('Реєстрація', href='/register', className='button-link')
     ], className='button-container'),
 
     dl.Map(
@@ -53,22 +53,17 @@ index_page = html.Div([
     dcc.Store(id='bounds-store'),
 ])
 
-page_1_layout = html.Div([
+login_layout = html.Div([
     html.Div(className="login-container", children=[
-        html.H2("Login", className="login-title"),
+        html.H2("Логін", className="login-title"),
         dcc.Input(id="username", type="text", placeholder="Username", className="input-box"),
         dcc.Input(id="password", type="password", placeholder="Password", className="input-box"),
         html.Button("Login", id="login-button", n_clicks=0, className="login-button"),
         html.Div(id="login-output", className="error-message"),
-        html.A("Back to Map", href="/map", className="back-link")
+        html.A("Назад до мапи", href="/map", className="back-link"),
+        html.A("Ще не зареєструвались? Натисніть сюди", href="/register", className="back-link")
     ])
 ], className="main-container")
-
-page_2_layout = html.Div([
-    html.H1("Сторінка 2"),
-    html.P("Тут буде дублювання функціоналу, якщо потрібно."),
-    dcc.Link('Назад на головну', href='/')
-])
 
 # Додамо нову сторінку для відгуків
 page_3_layout = html.Div([
@@ -81,3 +76,17 @@ page_3_layout = html.Div([
 
     html.A('Назад до карти', href='/', className='back-link')
 ])
+
+
+
+register_layout = html.Div([
+    html.Div(className="login-container", children=[
+        html.H2("Реєстрація", className="login-title"),
+        dcc.Input(id="reg-username", type="text", placeholder="Ім'я користувача", className="input-box"),
+        dcc.Input(id="reg-password", type="password", placeholder="Пароль", className="input-box"),
+        html.Button("Зареєструватись", id="register-button", n_clicks=0, className="login-button"),
+        html.Div(id="register-output", className="error-message"),
+        html.A("Назад до мапи", href="/", className="back-link"),
+        html.A("Вже зареєстровані? Натисніть сюди", href="/login", className="back-link")
+    ])
+], className="main-container")
