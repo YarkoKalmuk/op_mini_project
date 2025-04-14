@@ -21,13 +21,15 @@ index_page = html.Div([
         dcc.Input(
             id='address-input',
             type='text',
-            placeholder='Введіть адресу (наприклад: вул. Зеленая 20)',
+            placeholder='Введіть адресу (наприклад: Вулиця Зеленая 20А)',
             className='input-box',
             debounce=True
         ),
         html.Button('Знайти укриття', id='find-route-btn-main', n_clicks=0, className='search-button'),
         html.Div(id='search-status', className='status-message')
     ], className='search-container'),
+
+    html.Div(id='route-message', className='status-message'),  # ✅ Додано контейнер для повідомлень
 
     html.Div([
         dcc.Link('Перейти на сторінку 1', href='/page-1', className='button-link'),

@@ -107,30 +107,33 @@ def validate_login(n_clicks, username, password):
 
 @app.callback(
     Output("route", "children"),
+    Output("route-message", "children"),
     Input("find-route-btn-main", "n_clicks"),
     State("address-input", "value"),
     prevent_initial_call=True
 )
 def handle_route_on_main(n_clicks, address):
     if not address:
-        return []
-
+        return [], "❗ Будь ласка, введіть адресу."
     try:
         name, minutes, coords = compute_route(address, 'shelters_coords.csv')
+        if name is None and coords is None:
+            return [], "❗ Початкова адреса не була знайдена. Спробуйте ще раз."
         if not coords or len(coords) < 2:
-            return []
-
+            return [], "⚠️ Укриття занадто близько. Побудовано пряму лінію."
         start = coords[0]
         end = coords[-1]
-
         return [
-            dl.Polyline(positions=coords, color='red', weight=5),
-            dl.Marker(position=start, children=dl.Tooltip("Ви тут 🧍")),
-            dl.Marker(position=end, children=dl.Tooltip(f"Укриття: {name} (≈ {minutes} хв) 🛡️"))
+            [
+                dl.Polyline(positions=coords, color='red', weight=5),
+                dl.Marker(position=start, children=dl.Tooltip("Ви тут 🧍")),
+                dl.Marker(position=end, children=dl.Tooltip(f"Укриття: {name} (≈ {minutes} хв) 🛡️"))
+            ],
+            ""
         ]
     except Exception as e:
         print(f"Помилка: {e}")
-        return []
+        return [], "🚫 Сталася помилка при побудові маршруту. Перевірте адресу або спробуйте ще раз."
 
 
 @app.callback(

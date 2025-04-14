@@ -29,7 +29,7 @@ def parse_shelters(file_path, user_point):
             data = line.strip().split(',')
             if len(data) >= 10 and data[-2] and data[-1]:
                 shelter_coords = (float(data[-2]), float(data[-1]))
-                if 0.2 <= geodesic(user_point, shelter_coords).km <= 1:
+                if geodesic(user_point, shelter_coords).km <= 1:
                     shelters[f"{data[7]} {data[8]}"] = shelter_coords
     return shelters
 
@@ -65,28 +65,72 @@ def compute_route(address, shelter_file):
     user_point = find_user_location(address)
     if user_point is None:
         return None, None, None
-    user_node = ox.distance.nearest_nodes(G, user_point[1], user_point[0])
+    try:
+        user_node = ox.distance.nearest_nodes(G, user_point[1], user_point[0])
+    except Exception as e:
+        print("Помилка при визначенні вузла для користувача:", e)
+        return None, None, None
     
     shelters = parse_shelters(shelter_file, user_point)
     if not shelters:
         return None, None, None
 
-    shelter_nodes = {
-        name: ox.distance.nearest_nodes(G, coords[1], coords[0])
-        for name, coords in shelters.items()
-    }
+    shelter_nodes = {}
+    node_to_shelter_name = {}
+    for name, coords in shelters.items():
+        try:
+            node = ox.distance.nearest_nodes(G, coords[1], coords[0])
+            shelter_nodes[name] = node
+            node_to_shelter_name[node] = name
+        except Exception:
+            continue
 
     graph_dict = build_graph_dict(G)
     distances, prev_nodes = dijkstra(graph_dict, user_node)
-    closest_name, closest_node = min(shelter_nodes.items(), key=lambda item: distances[item[1]])
 
-    path = []
-    while closest_node is not None:
-        path.append(closest_node)
-        closest_node = prev_nodes.get(closest_node)
-    path = path[::-1]
-    route_coords = [(G.nodes[n]["y"], G.nodes[n]["x"]) for n in path]
-    length = sum(graph_dict[path[i]][path[i+1]] for i in range(len(path)-1))
-    time_minutes = round((length / 1000) / 5 * 60, 1)
+    reachable_shelters = {
+        name: node for name, node in shelter_nodes.items()
+        if distances.get(node, float('inf')) != float('inf')
+    }
 
-    return closest_name, time_minutes, route_coords
+    if reachable_shelters:
+        closest_name, closest_node = min(
+            reachable_shelters.items(), key=lambda item: distances[item[1]]
+        )
+        path = []
+        current = closest_node
+        while current is not None:
+            path.append(current)
+            current = prev_nodes.get(current)
+        path = path[::-1]
+
+        route_coords = [(G.nodes[n]["y"], G.nodes[n]["x"]) for n in path]
+
+        # 🧩 Якщо маршрут має лише одну точку — будуємо пряму лінію
+        if len(route_coords) < 2:
+            # Знаходимо shelter з мінімальною геодезичною відстанню
+            closest_name, shelter_coords = min(
+                shelters.items(),
+                key=lambda item: geodesic(user_point, item[1]).meters
+            )
+            route_coords = [user_point, shelter_coords]
+            distance_m = geodesic(user_point, shelter_coords).meters
+            time_minutes = round((distance_m / 1000) / 5 * 60, 1)
+            return closest_name + " (дуже близько)", time_minutes, route_coords
+
+
+        length = sum(graph_dict[path[i]][path[i+1]] for i in range(len(path)-1))
+        time_minutes = round((length / 1000) / 5 * 60, 1)
+
+        return closest_name, time_minutes, route_coords
+    # else:
+    #     closest_name, shelter_coords = min(
+    #         shelters.items(),
+    #         key=lambda item: geodesic(user_point, item[1]).meters
+    #     )
+    #     route_coords = [user_point, shelter_coords]
+    #     distance_m = geodesic(user_point, shelter_coords).meters
+    #     time_minutes = round((distance_m / 1000) / 5 * 60, 1)
+
+    #     return closest_name + " (пряма лінія)", time_minutes, route_coords
+
