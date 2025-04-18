@@ -104,3 +104,117 @@ html, body {
 .back-link:hover {
     text-decoration: underline;
 }
+
+
+/* 🌐 Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+body, html {
+    font-family: 'Inter', sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* 🔍 Стилізоване поле для введення адреси */
+.search-container {
+    position: absolute;
+    top: 70px;
+    left: 60px;
+    z-index: 1000;
+    display: flex;
+    gap: 10px;
+}
+
+.input-box {
+    width: 350px;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+.search-button, .submit-button {
+    padding: 12px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.search-button:hover, .submit-button:hover {
+    background-color: #218838;
+}
+
+/* 💬 Відгуки */
+#reviews-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px;
+}
+
+#reviews-container p {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+    font-size: 15px;
+}
+
+/* 📝 Поле для нового відгуку */
+#new-review {
+    width: 100%;
+    max-width: 500px;
+    padding: 12px;
+    margin: 20px 20px 10px 20px;
+    font-size: 15px;
+}
+
+/* 🖱️ Анімації при наведенні */
+.button-link:hover, .search-button:hover, .submit-button:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s ease-in-out;
+}
+
+/* 💬 Відгуки — анімовані */
+#reviews-container p:hover {
+    background-color: #eef6ff;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+    transform: scale(1.01);
+    transition: all 0.2s ease-in-out;
+}
+
+/* ✨ Покращене поле */
+.input-box:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+    outline: none;
+}
+
+/* 📌 Статусні повідомлення */
+.status-message {
+    margin: 10px 60px;
+    padding: 10px 15px;
+    border-left: 4px solid #ffc107;
+    background-color: #fff3cd;
+    color: #856404;
+    border-radius: 5px;
+    font-size: 15px;
+    max-width: 500px;
+}
+
+.status-message:empty {
+    display: none;
+}
+/* 🗺️ Тінь і рамка навколо карти */
+.map-container {
+    border: 1px solid #ccc;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.login-container .input-box {
+    max-width: 100%;
+    box-sizing: border-box;
+}
