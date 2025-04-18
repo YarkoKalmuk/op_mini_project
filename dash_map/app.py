@@ -12,7 +12,7 @@ from find_shelter_algo import compute_route  # Імпортуємо функці
 from assets.layout import register_layout, login_layout
 import sqlite3
 # Завантаження даних з CSV-файлу
-filepath = './../shelters_coords.csv'
+filepath = './shelters_coords.csv'
 shelters_df = pd.read_csv(filepath)
 shelters_df = shelters_df.dropna(subset=['latitude', 'longitude'])
 shelters_df = shelters_df.drop(columns=['account_number', 'ability_to_publish_information', 'district', 'community'])
