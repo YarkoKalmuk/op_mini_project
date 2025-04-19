@@ -32,6 +32,13 @@ app.layout = html.Div([
 
 conn = sqlite3.connect('./instance/shelters.sqlite')
 cursor = conn.cursor()
+cursor.execute('''CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY,
+    username TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    token TEXT NOT NULL,
+)
+''')
 cursor.execute('''CREATE TABLE IF NOT EXISTS reviews (
     shelter_id VARCHAR(128) NOT NULL,
     review_text VARCHAR(256) NOT NULL
