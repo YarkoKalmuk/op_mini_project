@@ -56,9 +56,9 @@ index_page = html.Div([
 login_layout = html.Div([
     html.Div(className="login-container", children=[
         html.H2("Логін", className="login-title"),
-        dcc.Input(id="username", type="text", placeholder="Username", className="input-box"),
-        dcc.Input(id="password", type="password", placeholder="Password", className="input-box"),
-        html.Button("Login", id="login-button", n_clicks=0, className="login-button"),
+        dcc.Input(id="login-email", type="email", placeholder="Email", className="input-box"),
+        dcc.Input(id="login-password", type="password", placeholder="Пароль", className="input-box"),
+        html.Button("Увійти", id="login-button", n_clicks=0, className="login-button"),
         html.Div(id="login-output", className="error-message"),
         html.A("Назад до мапи", href="/map", className="back-link"),
         html.A("Ще не зареєструвались? Натисніть сюди", href="/register", className="back-link")
@@ -83,6 +83,7 @@ register_layout = html.Div([
     html.Div(className="login-container", children=[
         html.H2("Реєстрація", className="login-title"),
         dcc.Input(id="reg-username", type="text", placeholder="Ім'я користувача", className="input-box"),
+        dcc.Input(id="reg-email", type="email", placeholder="Email", className="input-box"),
         dcc.Input(id="reg-password", type="password", placeholder="Пароль", className="input-box"),
         html.Button("Зареєструватись", id="register-button", n_clicks=0, className="login-button"),
         html.Div(id="register-output", className="error-message"),
