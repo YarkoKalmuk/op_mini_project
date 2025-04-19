@@ -68,6 +68,7 @@ login_layout = html.Div([
 
 # Додамо нову сторінку для відгуків
 page_3_layout = html.Div([
+    dcc.Store(id='user-token', storage_type='local'),
     html.H1("Відгуки про укриття"),
     html.Div(id='reviews-container'),  # Тут будуть відображатись відгуки
 

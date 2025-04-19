@@ -42,7 +42,8 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS users (
 ''')
 cursor.execute('''CREATE TABLE IF NOT EXISTS reviews (
     shelter_id VARCHAR(128) NOT NULL,
-    review_text VARCHAR(256) NOT NULL
+    review_text VARCHAR(256) NOT NULL,
+    username TEXT NOT NULL
 )
 ''')
 conn.close()
@@ -198,9 +199,7 @@ def get_reviews(shelter_id):
     conn = sqlite3.connect('./instance/shelters.sqlite')
     cursor = conn.cursor()
     all_reviews = cursor.execute('SELECT * FROM reviews WHERE shelter_id = ?', (shelter_id,)).fetchall()
-    reviews = []
-    for review in all_reviews:
-        reviews.append(review[1])
+    reviews = [f"{review[2]}: {review[1]}" for review in all_reviews]
     conn.close()
     return reviews
 
@@ -209,22 +208,30 @@ def get_reviews(shelter_id):
     Input('submit-review', 'n_clicks'),
     State('new-review', 'value'),
     State('url', 'search'),
+    State('user-token', 'data'),
     prevent_initial_call=True
 )
-def submit_review(n_clicks, review_text, search):
-    if n_clicks > 0 and review_text:
+def submit_review(n_clicks, review_text, search, token):
+    if n_clicks > 0 and review_text and token:
         shelter_id = search.split('=')[1] if search else ''
-        # Тут додати відгук в базу даних
-        save_review(review_text, shelter_id)
-        return ''  # Очищаємо поле вводу після додавання відгуку
+        conn = sqlite3.connect('./instance/shelters.sqlite')
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute('SELECT username FROM users WHERE token = ?', (token,))
+        user = cursor.fetchone()
+        conn.close()
+        if user:
+            username = user['username']
+            save_review(review_text, shelter_id, username)
+        return ''  # очищення поля
     return review_text
 
-def save_review(review_text, shelter_id):
+def save_review(review_text, shelter_id, username):
     conn = sqlite3.connect('./instance/shelters.sqlite')
     cursor = conn.cursor()
-    cursor.execute('INSERT INTO reviews VALUES (?, ?)', (shelter_id, review_text,))
+    cursor.execute('INSERT INTO reviews VALUES (?, ?, ?)', (shelter_id, review_text, username,))
     conn.commit()
-    print(f"Saving review: {review_text}")
+    print(f"Saving review: {review_text} від {username}")
     # Ти можеш зберігати відгуки в базі даних, тут приклад з виведенням в консоль.
     conn.close()
 
