@@ -1,4 +1,5 @@
 import math
+import os
 import dash
 from dash import html, dcc
 from dash.dependencies import Input, Output, State
@@ -31,13 +32,15 @@ app.layout = html.Div([
 ])
 
 
+if not os.path.exists('instance/'):
+    os.makedirs('instance/')
 conn = sqlite3.connect('./instance/shelters.sqlite')
 cursor = conn.cursor()
 cursor.execute('''CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
     email TEXT UNIQUE NOT NULL,
-    token TEXT NOT NULL
+    token TEXT UNIQUE NOT NULL
 )
 ''')
 cursor.execute('''CREATE TABLE IF NOT EXISTS reviews (
@@ -140,10 +143,14 @@ def handle_register(n_clicks, username, email, password):
     users_with_similar_email = cursor.fetchall()
     cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
     users_with_similar_username = cursor.fetchall()
+    cursor.execute('SELECT * FROM users WHERE token = ?', (token,))
+    users_with_similar_token = cursor.fetchall()
     if len(users_with_similar_email) > 0:
         return 'Користувач із таким email уже зареєстрований'
     if len(users_with_similar_username) > 0:
         return 'Користувач із таким username уже зареєстрований'
+    if len(users_with_similar_token) > 0:
+        return 'Користувач із таким token уже зареєстрований'
     cursor.execute('INSERT INTO users (username, email, token) VALUES (?, ?, ?)', (username, email, token))
     conn.commit()
     conn.close()
