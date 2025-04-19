@@ -61,7 +61,8 @@ login_layout = html.Div([
         html.Button("Увійти", id="login-button", n_clicks=0, className="login-button"),
         html.Div(id="login-output", className="error-message"),
         html.A("Назад до мапи", href="/map", className="back-link"),
-        html.A("Ще не зареєструвались? Натисніть сюди", href="/register", className="back-link")
+        html.A("Ще не зареєструвались? Натисніть сюди", href="/register", className="back-link"),
+        dcc.Store(id='user-token', storage_type='local')
     ])
 ], className="main-container")
 

@@ -10,6 +10,7 @@ from assets.layout import index_page, page_3_layout, select_top_200
 from find_shelter_algo import compute_route  # Імпортуємо функцію для маршруту
 from assets.layout import register_layout, login_layout
 import sqlite3
+from hashlib import sha256
 
 # Завантаження укриттів
 filepath = './shelters_coords.csv'
@@ -36,7 +37,7 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
     email TEXT UNIQUE NOT NULL,
-    token TEXT NOT NULL,
+    token TEXT NOT NULL
 )
 ''')
 cursor.execute('''CREATE TABLE IF NOT EXISTS reviews (
@@ -99,18 +100,54 @@ def update_shelter_markers(bounds):
         for _, row in shelter_markers.iterrows()
     ]
 
-# 🔐 Логін
 @app.callback(
     Output("login-output", "children"),
+    Output("user-token", "data"),
     Input("login-button", "n_clicks"),
-    State("username", "value"),
-    State("password", "value"),
+    State("login-email", "value"),
+    State("login-password", "value"),
     prevent_initial_call=True
 )
-def validate_login(n_clicks, username, password):
-    if username == "admin" and password == "password":
-        return "Login successful! Redirecting..."
-    return "Invalid credentials. Try again."
+def handle_login(n_clicks, email, password):
+    conn = sqlite3.connect('./instance/shelters.sqlite')
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    input_ = f'{email}{password}dev'
+    token = sha256(input_.encode('utf-8')).hexdigest()
+    cursor.execute('SELECT * FROM users WHERE email = ?', (email,))
+    user = cursor.fetchone()
+    conn.close()
+    if user is not None and user['token'] == token:
+        return 'Логін успішний', token
+    return 'Або електронна пошта не правильна або пароль', dash.no_update
+
+@app.callback(
+    Output("register-output", "children"),
+    Input("register-button", "n_clicks"),
+    State("reg-username", "value"),
+    State("reg-email", "value"),
+    State("reg-password", "value"),
+    prevent_initial_call=True
+)
+def handle_register(n_clicks, username, email, password):
+    conn = sqlite3.connect('./instance/shelters.sqlite')
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    input_ = f'{email}{password}dev'
+    token = sha256(input_.encode('utf-8')).hexdigest()
+    cursor.execute('SELECT * FROM users WHERE email = ?', (email,))
+    users_with_similar_email = cursor.fetchall()
+    cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
+    users_with_similar_username = cursor.fetchall()
+    if len(users_with_similar_email) > 0:
+        return 'Користувач із таким email уже зареєстрований'
+    if len(users_with_similar_username) > 0:
+        return 'Користувач із таким username уже зареєстрований'
+    cursor.execute('INSERT INTO users (username, email, token) VALUES (?, ?, ?)', (username, email, token))
+    conn.commit()
+    conn.close()
+    return 'Користувача зареєстровано, перейдіть на сторінку логіну і авторизуйтесь'
+
 
 @app.callback(
     Output("route", "children"),
