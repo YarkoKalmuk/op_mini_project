@@ -1,6 +1,7 @@
 import math
 import os
 import dash
+from dash.exceptions import PreventUpdate
 from dash import html, dcc
 from dash.dependencies import Input, Output, State
 import dash_leaflet as dl
@@ -18,7 +19,7 @@ filepath = './shelters_coords.csv'
 shelters_df = pd.read_csv(filepath)
 shelters_df = shelters_df.dropna(subset=['latitude', 'longitude'])
 shelters_df = shelters_df.drop(columns=['account_number', 'ability_to_publish_information', 'district', 'community'])
-shelters_df.loc[shelters_df['type_of_room'] == 'Сховище', 'colour'] = 'red'
+shelters_df.loc[shelters_df['type_of_room'] == 'Сховище', 'colour'] = 'blue'
 shelters_df.loc[shelters_df['type_of_room'] != 'Сховище', 'colour'] = 'blue'
 
 # Ініціалізація додатку
@@ -124,6 +125,71 @@ def handle_login(n_clicks, email, password):
     if user is not None and user['token'] == token:
         return 'Логін успішний', token
     return 'Або електронна пошта не правильна або пароль', dash.no_update
+
+@app.callback(
+    Output('review-input-section', 'children'),
+    Input('user-token', 'data')
+)
+def toggle_review_input(token):
+    if not token:
+        return html.Div("Щоб залишити відгук, будь ласка, увійдіть.", className='error-message')
+
+    conn = sqlite3.connect('./instance/shelters.sqlite')
+    cursor = conn.cursor()
+    cursor.execute('SELECT username FROM users WHERE token = ?', (token,))
+    user = cursor.fetchone()
+    conn.close()
+
+    if user:
+        return html.Div([
+            dcc.Input(id='new-review', type='text', placeholder='Ваш відгук...', className='input-box'),
+            html.Button('Лишити відгук', id='submit-review', n_clicks=0, className='submit-button'),
+        ])
+    else:
+        return html.Div("❌ Недійсний токен. Увійдіть знову.", className='error-message')
+
+
+
+@app.callback(
+    Output("user-token", "data", allow_duplicate=True),
+    Input("logout-button", "n_clicks"),
+    prevent_initial_call=True
+)
+def logout(n_clicks):
+    if not n_clicks:
+        raise PreventUpdate
+    return None
+
+@app.callback(
+    Output('auth-section', 'children'),
+    Input('user-token', 'data')
+)
+def update_auth_section(token):
+    if not token:
+        return html.Div([
+            dcc.Link('Логін', href='/login', className='button-link'),
+            html.Br(),
+            dcc.Link('Реєстрація', href='/register', className='button-link')
+        ])
+
+    conn = sqlite3.connect('./instance/shelters.sqlite')
+    cursor = conn.cursor()
+    cursor.execute('SELECT username FROM users WHERE token = ?', (token,))
+    user = cursor.fetchone()
+    conn.close()
+
+    if user:
+        return html.Div([
+            html.Span(f"👤 Вітаємо, {user[0]}!", className='welcome-text'),
+            html.Button("Вийти", id="logout-button", n_clicks=0, className="logout-button")
+        ])
+    else:
+        return html.Div([
+            dcc.Link('Логін', href='/login', className='button-link'),
+            html.Br(),
+            dcc.Link('Реєстрація', href='/register', className='button-link')
+        ])
+
 
 @app.callback(
     Output("register-output", "children"),

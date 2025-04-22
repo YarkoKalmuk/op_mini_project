@@ -17,6 +17,7 @@ def select_top_200(shelters_df: pd.DataFrame, bounds: dict[str, float]) -> pd.Da
 index_page = html.Div([
     html.H1("Мапа укриттів", className='page-title'),
 
+    dcc.Store(id='user-token', storage_type='local'),
     html.Div([
         dcc.Input(
             id='address-input',
@@ -31,11 +32,12 @@ index_page = html.Div([
 
     html.Div(id='route-message', className='status-message'),  # ✅ Додано контейнер для повідомлень
 
-    html.Div([
-        dcc.Link('Логін', href='/login', className='button-link'),
-        html.Br(),
-        dcc.Link('Реєстрація', href='/register', className='button-link')
-    ], className='button-container'),
+    # html.Div([
+    #     dcc.Link('Логін', href='/login', className='button-link'),
+    #     html.Br(),
+    #     dcc.Link('Реєстрація', href='/register', className='button-link')
+    # ], className='button-container'),
+    html.Div(id='auth-section', className='button-container'),
 
     dl.Map(
         id="map",
@@ -73,8 +75,10 @@ page_3_layout = html.Div([
     html.Div(id='reviews-container'),  # Тут будуть відображатись відгуки
 
     # Форма для додавання відгуку
-    dcc.Input(id='new-review', type='text', placeholder='Ваш відгук...', className='input-box'),
-    html.Button('Лишити відгук', id='submit-review', n_clicks=0, className='submit-button'),
+    html.Div(id='review-input-section'),  # Покажемо форму лише якщо користувач залогінений
+
+    # dcc.Input(id='new-review', type='text', placeholder='Ваш відгук...', className='input-box'),
+    # html.Button('Лишити відгук', id='submit-review', n_clicks=0, className='submit-button'),
 
     html.A('Назад до карти', href='/', className='back-link')
 ])
