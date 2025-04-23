@@ -17,6 +17,7 @@ def select_top_200(shelters_df: pd.DataFrame, bounds: dict[str, float]) -> pd.Da
 index_page = html.Div([
     html.H1("Мапа укриттів", className='page-title'),
 
+    dcc.Store(id='user-token', storage_type='local'),
     html.Div([
         dcc.Input(
             id='address-input',
@@ -31,11 +32,12 @@ index_page = html.Div([
 
     html.Div(id='route-message', className='status-message'),  # ✅ Додано контейнер для повідомлень
 
-    html.Div([
-        dcc.Link('Логін', href='/login', className='button-link'),
-        html.Br(),
-        dcc.Link('Реєстрація', href='/register', className='button-link')
-    ], className='button-container'),
+    # html.Div([
+    #     dcc.Link('Логін', href='/login', className='button-link'),
+    #     html.Br(),
+    #     dcc.Link('Реєстрація', href='/register', className='button-link')
+    # ], className='button-container'),
+    html.Div(id='auth-section', className='button-container'),
 
     dl.Map(
         id="map",
@@ -56,23 +58,27 @@ index_page = html.Div([
 login_layout = html.Div([
     html.Div(className="login-container", children=[
         html.H2("Логін", className="login-title"),
-        dcc.Input(id="username", type="text", placeholder="Username", className="input-box"),
-        dcc.Input(id="password", type="password", placeholder="Password", className="input-box"),
-        html.Button("Login", id="login-button", n_clicks=0, className="login-button"),
+        dcc.Input(id="login-email", type="email", placeholder="Email", className="input-box"),
+        dcc.Input(id="login-password", type="password", placeholder="Пароль", className="input-box"),
+        html.Button("Увійти", id="login-button", n_clicks=0, className="login-button"),
         html.Div(id="login-output", className="error-message"),
         html.A("Назад до мапи", href="/map", className="back-link"),
-        html.A("Ще не зареєструвались? Натисніть сюди", href="/register", className="back-link")
+        html.A("Ще не зареєструвались? Натисніть сюди", href="/register", className="back-link"),
+        dcc.Store(id='user-token', storage_type='local')
     ])
 ], className="main-container")
 
 # Додамо нову сторінку для відгуків
 page_3_layout = html.Div([
+    dcc.Store(id='user-token', storage_type='local'),
     html.H1("Відгуки про укриття"),
     html.Div(id='reviews-container'),  # Тут будуть відображатись відгуки
 
     # Форма для додавання відгуку
-    dcc.Input(id='new-review', type='text', placeholder='Ваш відгук...', className='input-box'),
-    html.Button('Лишити відгук', id='submit-review', n_clicks=0, className='submit-button'),
+    html.Div(id='review-input-section'),  # Покажемо форму лише якщо користувач залогінений
+
+    # dcc.Input(id='new-review', type='text', placeholder='Ваш відгук...', className='input-box'),
+    # html.Button('Лишити відгук', id='submit-review', n_clicks=0, className='submit-button'),
 
     html.A('Назад до карти', href='/', className='back-link')
 ])
@@ -83,6 +89,7 @@ register_layout = html.Div([
     html.Div(className="login-container", children=[
         html.H2("Реєстрація", className="login-title"),
         dcc.Input(id="reg-username", type="text", placeholder="Ім'я користувача", className="input-box"),
+        dcc.Input(id="reg-email", type="email", placeholder="Email", className="input-box"),
         dcc.Input(id="reg-password", type="password", placeholder="Пароль", className="input-box"),
         html.Button("Зареєструватись", id="register-button", n_clicks=0, className="login-button"),
         html.Div(id="register-output", className="error-message"),
