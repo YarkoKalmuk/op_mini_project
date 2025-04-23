@@ -14,9 +14,10 @@ def load_graph():
     ox.save_graphml(G, GRAPH_FILE)
     return G
 
-def find_user_location(address):
-    geolocator = Nominatim(user_agent="shelter_finder")
-    location = geolocator.geocode(address)
+def find_user_location(address, city="Львів", country="Україна"):
+    geolocator = Nominatim(user_agent="shelter_finder", timeout=10)
+    full_address = f"{address}, {city}, {country}"
+    location = geolocator.geocode(full_address)
     if location is None:
         return None
     return (location.latitude, location.longitude)
