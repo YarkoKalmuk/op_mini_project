@@ -1,0 +1,233 @@
+/* styles.css */
+.button-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;  /* Щоб кнопки були поверх карти */
+}
+
+.button-link {
+    display: block;
+    padding: 10px;
+    margin: 5px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.button-link:hover {
+    background-color: #0056b3;
+}
+
+html, body {
+    height: 100%; /* Задаємо 100% висоти для документа */
+    margin: 0; /* Відключаємо стандартні відступи */
+}
+
+.map-container {
+    position: "absolute";
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100%;
+}
+
+.page-title {
+    position: absolute;
+    top: 0px;
+    left: 60px;
+    z-index: 1000; /* Щоб заголовок був поверх карти */
+    color: rgb(255, 255, 255);
+    font-size: 24px;
+    background-color: rgba(0, 0, 0, 0.5); /* Напівпрозорий фон */
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.main-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f4;
+}
+
+.login-container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    text-align: center;
+}
+
+.login-title {
+    margin-bottom: 20px;
+}
+
+.input-box {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.login-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.login-button:hover {
+    background-color: #0056b3;
+}
+
+.error-message {
+    color: red;
+    margin-top: 10px;
+}
+
+.back-link {
+    display: block;
+    margin-top: 10px;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+body, html {
+    font-family: 'Inter', sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Стилізоване поле для введення адреси */
+.search-container {
+    position: absolute;
+    top: 70px;
+    left: 60px;
+    z-index: 1000;
+    display: flex;
+    gap: 10px;
+}
+
+.input-box {
+    width: 350px;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+.search-button, .submit-button {
+    padding: 12px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.search-button:hover, .submit-button:hover {
+    background-color: #218838;
+}
+
+/* Відгуки */
+#reviews-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px;
+}
+
+#reviews-container p {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+    font-size: 15px;
+}
+
+/* Поле для нового відгуку */
+#new-review {
+    width: 100%;
+    max-width: 500px;
+    padding: 12px;
+    margin: 20px 20px 10px 20px;
+    font-size: 15px;
+}
+
+/* Анімації при наведенні */
+.button-link:hover, .search-button:hover, .submit-button:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s ease-in-out;
+}
+
+/* Відгуки — анімовані */
+#reviews-container p:hover {
+    background-color: #eef6ff;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+    transform: scale(1.01);
+    transition: all 0.2s ease-in-out;
+}
+
+/* Покращене поле */
+.input-box:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+    outline: none;
+}
+
+/* Статусні повідомлення */
+.status-message {
+    margin: 10px 60px;
+    padding: 10px 15px;
+    border-left: 4px solid #ffc107;
+    background-color: #fff3cd;
+    color: #856404;
+    border-radius: 5px;
+    font-size: 15px;
+    max-width: 500px;
+}
+
+.status-message:empty {
+    display: none;
+}
+/* Тінь і рамка навколо карти */
+.map-container {
+    border: 1px solid #ccc;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.login-container .input-box {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.logout-button {
+    margin-left: 20px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.logout-button:hover {
+    background-color: #d32f2f;
+}
