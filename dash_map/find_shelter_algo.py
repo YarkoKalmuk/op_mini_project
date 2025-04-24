@@ -6,6 +6,7 @@ import heapq
 
 GRAPH_FILE = "lviv_graph.graphml"
 
+# Завантаження графу Львову
 def load_graph():
     if os.path.exists(GRAPH_FILE):
         return ox.load_graphml(GRAPH_FILE)
@@ -14,6 +15,8 @@ def load_graph():
     ox.save_graphml(G, GRAPH_FILE)
     return G
 
+
+# Шукаєм поточне місцезнаходження користувача у координатах широти та довготи
 def find_user_location(address, city="Львів", country="Україна"):
     geolocator = Nominatim(user_agent="shelter_finder", timeout=10)
     full_address = f"{address}, {city}, {country}"
@@ -22,6 +25,7 @@ def find_user_location(address, city="Львів", country="Україна"):
         return None
     return (location.latitude, location.longitude)
 
+# Берем до уваги тільки укриття які не дальше ніж 1 км від нас
 def parse_shelters(file_path, user_point):
     shelters = {}
     with open(file_path, 'r', encoding='utf-8') as file:
@@ -34,6 +38,8 @@ def parse_shelters(file_path, user_point):
                     shelters[f"{data[7]} {data[8]}"] = shelter_coords
     return shelters
 
+
+# Будуємо граф
 def build_graph_dict(G):
     graph_dict = {node: {} for node in G.nodes()}
     for u, v, data in G.edges(data=True):
@@ -41,6 +47,7 @@ def build_graph_dict(G):
         graph_dict[u][v] = length
     return graph_dict
 
+# Реалізація алгоритму Дейкстри
 def dijkstra(graph, start_point):
     shortest_paths = {node: float('inf') for node in graph}
     pre = {node: None for node in graph}
@@ -61,6 +68,8 @@ def dijkstra(graph, start_point):
                     heapq.heappush(heap, (new_distance, neighbor))
     return shortest_paths, pre
 
+
+# Шукаєм найкоротший шлях
 def compute_route(address, shelter_file):
     G = load_graph()
     user_point = find_user_location(address)
@@ -107,7 +116,7 @@ def compute_route(address, shelter_file):
 
         route_coords = [(G.nodes[n]["y"], G.nodes[n]["x"]) for n in path]
 
-        # 🧩 Якщо маршрут має лише одну точку — будуємо пряму лінію
+        # Якщо маршрут має лише одну точку — будуємо пряму лінію
         if len(route_coords) < 2:
             # Знаходимо shelter з мінімальною геодезичною відстанню
             closest_name, shelter_coords = min(
@@ -124,14 +133,3 @@ def compute_route(address, shelter_file):
         time_minutes = round((length / 1000) / 5 * 60, 1)
 
         return closest_name, time_minutes, route_coords
-    # else:
-    #     closest_name, shelter_coords = min(
-    #         shelters.items(),
-    #         key=lambda item: geodesic(user_point, item[1]).meters
-    #     )
-    #     route_coords = [user_point, shelter_coords]
-    #     distance_m = geodesic(user_point, shelter_coords).meters
-    #     time_minutes = round((distance_m / 1000) / 5 * 60, 1)
-
-    #     return closest_name + " (пряма лінія)", time_minutes, route_coords
-
