@@ -39,5 +39,5 @@ def add_coordinates_to_file(input_file:str, output_file:str) -> None:
     df.to_csv(output_file, index=False)
 
 # Якщо запустити то почне перезаписувати файл. Займає багато часу
-if __name__ == "__main__":
+# if __name__ == "__main__":
     # add_coordinates_to_file("ukrittya_lviv_obl.csv", "shelters_coords.csv")
