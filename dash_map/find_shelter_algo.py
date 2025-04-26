@@ -4,7 +4,7 @@ from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
 import heapq
 
-GRAPH_FILE = "lviv_graph.graphml"
+GRAPH_FILE = os.path.join("dash_map", "lviv_graph.graphml")
 
 # Завантаження графу Львову
 def load_graph():
@@ -14,7 +14,6 @@ def load_graph():
     G = ox.simplify_graph(G)
     ox.save_graphml(G, GRAPH_FILE)
     return G
-
 
 # Шукаєм поточне місцезнаходження користувача у координатах широти та довготи
 def find_user_location(address, city="Львів", country="Україна"):
