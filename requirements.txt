@@ -1,6 +1,6 @@
 dash==3.0.2
 dash-leaflet
-dash-bootstrap-components==2.0
+dash-bootstrap-components
 dash-extensions==2.0.1
 pandas==2.2.2
 osmnx==2.0.2
