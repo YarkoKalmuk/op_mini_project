@@ -6,7 +6,6 @@ from dash import html, dcc
 from dash.dependencies import Input, Output, State
 import dash_leaflet as dl
 import pandas as pd
-import dash_bootstrap_components as dbc
 
 from dash_map.layout import index_page, review_layout, select_top_200
 from dash_map.find_shelter_algo import compute_route  # Імпортуємо функцію для маршруту
