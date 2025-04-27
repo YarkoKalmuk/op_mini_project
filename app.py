@@ -125,8 +125,29 @@ def handle_login(n_clicks, email, password):
     user = cursor.fetchone()
     conn.close()
     if user is not None and user['token'] == token:
-        return 'Логін успішний', token
-    return 'Або електронна пошта не правильна або пароль', dash.no_update
+        return html.Div('Логін успішний!', className='success-message'), token
+    return html.Div('Електронна пошта або пароль неправильні.', className='error-message'), dash.no_update
+
+# @app.callback(
+#     Output("login-output", "children"),
+#     Output("user-token", "data"),
+#     Input("login-button", "n_clicks"),
+#     State("login-email", "value"),
+#     State("login-password", "value"),
+#     prevent_initial_call=True
+# )
+# def handle_login(n_clicks, email, password):
+#     conn = sqlite3.connect('instance/shelters.sqlite')
+#     conn.row_factory = sqlite3.Row
+#     cursor = conn.cursor()
+#     input_ = f'{email}{password}dev'
+#     token = sha256(input_.encode('utf-8')).hexdigest()
+#     cursor.execute('SELECT * FROM users WHERE email = ?', (email,))
+#     user = cursor.fetchone()
+#     conn.close()
+#     if user is not None and user['token'] == token:
+#         return 'Логін успішний', token
+#     return 'Або електронна пошта не правильна або пароль', dash.no_update
 
 
 # Реалізація залишання відгуків
@@ -218,15 +239,46 @@ def handle_register(n_clicks, username, email, password):
     cursor.execute('SELECT * FROM users WHERE token = ?', (token,))
     users_with_similar_token = cursor.fetchall()
     if len(users_with_similar_email) > 0:
-        return 'Користувач із таким email уже зареєстрований'
+        return html.Div('Користувач із таким email уже зареєстрований.', className='error-message')
     if len(users_with_similar_username) > 0:
-        return 'Користувач із таким username уже зареєстрований'
+        return html.Div('Користувач із таким username уже зареєстрований.', className='error-message')
     if len(users_with_similar_token) > 0:
-        return 'Користувач із таким token уже зареєстрований'
+        return html.Div('Користувач із таким токеном уже зареєстрований.', className='error-message')
     cursor.execute('INSERT INTO users (username, email, token) VALUES (?, ?, ?)', (username, email, token))
     conn.commit()
     conn.close()
-    return 'Користувача зареєстровано, перейдіть на сторінку логіну і авторизуйтесь'
+    return html.Div('Користувача зареєстровано! Тепер увійдіть на сторінці логіну.', className='success-message')
+
+# @app.callback(
+#     Output("register-output", "children"),
+#     Input("register-button", "n_clicks"),
+#     State("reg-username", "value"),
+#     State("reg-email", "value"),
+#     State("reg-password", "value"),
+#     prevent_initial_call=True
+# )
+# def handle_register(n_clicks, username, email, password):
+#     conn = sqlite3.connect('instance/shelters.sqlite')
+#     conn.row_factory = sqlite3.Row
+#     cursor = conn.cursor()
+#     input_ = f'{email}{password}dev'
+#     token = sha256(input_.encode('utf-8')).hexdigest()
+#     cursor.execute('SELECT * FROM users WHERE email = ?', (email,))
+#     users_with_similar_email = cursor.fetchall()
+#     cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
+#     users_with_similar_username = cursor.fetchall()
+#     cursor.execute('SELECT * FROM users WHERE token = ?', (token,))
+#     users_with_similar_token = cursor.fetchall()
+#     if len(users_with_similar_email) > 0:
+#         return 'Користувач із таким email уже зареєстрований'
+#     if len(users_with_similar_username) > 0:
+#         return 'Користувач із таким username уже зареєстрований'
+#     if len(users_with_similar_token) > 0:
+#         return 'Користувач із таким token уже зареєстрований'
+#     cursor.execute('INSERT INTO users (username, email, token) VALUES (?, ?, ?)', (username, email, token))
+#     conn.commit()
+#     conn.close()
+#     return 'Користувача зареєстровано, перейдіть на сторінку логіну і авторизуйтесь'
 
 
 # Реалізація вводу адреси та пошуку найближчого укриття
