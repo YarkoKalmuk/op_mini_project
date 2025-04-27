@@ -6,3 +6,4 @@ pandas==2.2.2
 osmnx==2.0.2
 geopy==2.4.1
 numpy==2.2.4
+gunicorn==20.1.0
