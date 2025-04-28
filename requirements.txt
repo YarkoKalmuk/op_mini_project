@@ -1,6 +1,6 @@
 dash==3.0.2
-dash-leaflet==1.1.1
-dash-extensions==2.0.1
+dash-leaflet
+dash-extensions
 pandas==2.2.2
 osmnx==2.0.2
 geopy==2.4.1
